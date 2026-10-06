@@ -17,7 +17,7 @@ This project is an AI-assisted backend service developed using Java and Spring B
 
 The API accepts a text string from the client, sends it to the Gemini AI model for classification, validates the AI response, and returns the predicted category and confidence score.
 
-### Flow
+### Request Flow
 
 ```text
 Client / Postman
@@ -37,7 +37,6 @@ Category + Confidence
        |
        v
 Client
-
 
 2. Technology Stack
 - Java 17
@@ -77,7 +76,7 @@ ClassificationService
 - Builds the AI classification prompt.
 - Calls the Gemini API.
 - Extracts the AI response.
-- Validates category and confidence.
+- Validates the category and confidence score.
 - Returns the classification result.
 - Logs Gemini API response time.
 DTOs
@@ -90,12 +89,13 @@ Returns:
 Exception Handler
 GlobalExceptionHandler
 Handles:
-- Invalid request
+- Invalid requests
 - AI service errors
 - Unexpected application errors
 4. API Endpoint
 Classify Text
-POST /api/classify
+POST
+/api/classify
 
 Full URL when running locally:
 http://localhost:8080/api/classify
@@ -110,7 +110,7 @@ Request Body
 }
 
 6. Response
-Example:
+Example
 {
   "category": "Complaint",
   "confidence": 0.95
@@ -124,7 +124,7 @@ Feedback	User provides positive or general feedback
 Other	Text that does not fit the above categories
 
 
-The confidence value is between 0 and 1.
+The confidence value is returned as a number between 0 and 1.
 7. Example Requests
 Complaint
 {
@@ -157,3 +157,110 @@ Other
 
 Expected category:
 Other
+
+8. Gemini AI Integration
+The application uses Google's Gemini API to classify the input text.
+The service sends a prompt instructing Gemini to:
+1. Classify the text into exactly one of the supported categories.
+2. Return a confidence score between 0 and 1.
+3. Return the result in JSON format.
+4. Return no additional text or Markdown.
+Example AI response:
+{
+  "category": "Complaint",
+  "confidence": 0.95
+}
+
+The application then parses and validates the AI response before returning it to the client.
+9. Environment Configuration
+The Gemini API key is not hardcoded in the source code.
+The application reads the API key from an environment variable.
+application.properties
+spring.application.name=text-classification-api
+server.port=8080
+
+gemini.api-key=${GEMINI_API_KEY}
+gemini.model=gemini-2.5-flash
+
+Set the environment variable:
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+Never commit your actual Gemini API key to GitHub.
+
+10. How to Run the Application
+Prerequisites
+Make sure the following are installed:
+- Java 17
+- Maven
+- A Gemini API key
+Step 1: Clone the repository
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+
+Step 2: Navigate to the project
+cd text-classification-api
+
+Step 3: Configure the Gemini API key
+Set the environment variable:
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+Step 4: Run the application
+Using Maven:
+mvn spring-boot:run
+
+The application will start on:
+http://localhost:8080
+
+11. Testing with Postman
+Create a POST request:
+http://localhost:8080/api/classify
+
+Set the header:
+Content-Type: application/json
+
+Use the following request body:
+{
+  "text": "I am very unhappy with the service."
+}
+
+Example response:
+{
+  "category": "Complaint",
+  "confidence": 0.95
+}
+
+12. Response-Time Logging
+The application logs the time taken by the Gemini API request.
+Example log:
+Gemini API response time: 842 ms
+
+This helps in monitoring the AI service response time during development and testing.
+13. Error Handling
+The application provides centralized exception handling using @RestControllerAdvice.
+Invalid Request
+Example:
+{
+  "text": ""
+}
+
+Returns a 400 Bad Request.
+AI Service Failure
+If the Gemini service fails or returns an invalid response, the application returns a 502 Bad Gateway.
+Unexpected Application Error
+Unexpected errors are handled and returned as:
+500 Internal Server Error
+
+14. Security
+- The Gemini API key is stored in an environment variable.
+- The API key is not hardcoded in the source code.
+- The API key should never be committed to GitHub.
+- .gitignore is used to prevent local environment/configuration files from being committed.
+15. Future Improvements
+Possible improvements include:
+- Add unit and integration tests.
+- Add API documentation using Swagger/OpenAPI.
+- Add Docker support.
+- Add request/response logging with correlation IDs.
+- Add retry and timeout handling for Gemini API failures.
+- Add monitoring and metrics.
+- Add authentication and authorization.
+- Add configurable classification categories.
