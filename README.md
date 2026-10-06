@@ -37,8 +37,12 @@ Category + Confidence
        |
        v
 Client
+```
 
-2. Technology Stack
+---
+
+## 2. Technology Stack
+
 - Java 17
 - Spring Boot 3.5.6
 - Maven
@@ -47,7 +51,12 @@ Client
 - Jackson
 - Google Gemini API
 - Postman
-3. Project Structure
+
+---
+
+## 3. Project Structure
+
+```text
 src/main/java/com/example/textclassification
 │
 ├── controller
@@ -64,203 +73,493 @@ src/main/java/com/example/textclassification
 │   └── ClassificationService.java
 │
 └── TextClassificationApplication.java
+```
 
-Responsibilities
-Controller
-ClassificationController
-- Exposes the REST endpoint.
-- Accepts the incoming request.
-- Delegates classification to the service.
-Service
-ClassificationService
-- Builds the AI classification prompt.
-- Calls the Gemini API.
-- Extracts the AI response.
-- Validates the category and confidence score.
-- Returns the classification result.
-- Logs Gemini API response time.
-DTOs
-ClassificationRequest
-Receives the input text.
-ClassificationResponse
-Returns:
-- Category
-- Confidence
-Exception Handler
-GlobalExceptionHandler
-Handles:
-- Invalid requests
-- AI service errors
-- Unexpected application errors
-4. API Endpoint
-Classify Text
-POST
-/api/classify
+---
 
-Full URL when running locally:
-http://localhost:8080/api/classify
+## 4. Component Responsibilities
 
-5. Request
-Headers
-Content-Type: application/json
+### ClassificationController
 
-Request Body
+Responsible for:
+
+- Exposing the REST API endpoint.
+- Accepting the incoming request.
+- Validating the request.
+- Delegating the classification request to the service.
+
+### ClassificationService
+
+Responsible for:
+
+- Building the AI classification prompt.
+- Calling the Gemini API.
+- Extracting the AI response.
+- Parsing the JSON response.
+- Validating the category.
+- Validating the confidence score.
+- Returning the classification result.
+- Logging Gemini API response time.
+
+### ClassificationRequest
+
+Responsible for receiving the input text.
+
+Example:
+
+```json
 {
   "text": "I want a refund because your service was terrible."
 }
+```
 
-6. Response
-Example
+### ClassificationResponse
+
+Responsible for returning:
+
+- Category
+- Confidence
+
+Example:
+
+```json
 {
   "category": "Complaint",
   "confidence": 0.95
 }
+```
 
-Possible Categories
-Category	Description
-Complaint	User expresses dissatisfaction or reports a problem
-Query	User is asking for information
-Feedback	User provides positive or general feedback
-Other	Text that does not fit the above categories
+### GlobalExceptionHandler
 
+Provides centralized exception handling for:
 
-The confidence value is returned as a number between 0 and 1.
-7. Example Requests
-Complaint
+- Invalid requests
+- AI service errors
+- Unexpected application errors
+
+---
+
+## 5. API Endpoint
+
+### Classify Text
+
+**Method:**
+
+```text
+POST
+```
+
+**Endpoint:**
+
+```text
+/api/classify
+```
+
+**Full URL when running locally:**
+
+```text
+http://localhost:8080/api/classify
+```
+
+---
+
+## 6. Request
+
+### Headers
+
+```text
+Content-Type: application/json
+```
+
+### Request Body
+
+```json
+{
+  "text": "I want a refund because your service was terrible."
+}
+```
+
+---
+
+## 7. Response
+
+### Example Response
+
+```json
+{
+  "category": "Complaint",
+  "confidence": 0.95
+}
+```
+
+The confidence value is returned as a number between `0` and `1`.
+
+### Possible Categories
+
+| Category | Description |
+|---|---|
+| Complaint | User expresses dissatisfaction or reports a problem |
+| Query | User is asking for information |
+| Feedback | User provides positive or general feedback |
+| Other | Text that does not fit the above categories |
+
+---
+
+## 8. Example Requests
+
+### Complaint
+
+Request:
+
+```json
 {
   "text": "I want my money back. The service was terrible."
 }
+```
 
 Expected category:
-Complaint
 
-Query
+```text
+Complaint
+```
+
+### Query
+
+Request:
+
+```json
 {
   "text": "What are your customer support hours?"
 }
+```
 
 Expected category:
-Query
 
-Feedback
+```text
+Query
+```
+
+### Feedback
+
+Request:
+
+```json
 {
   "text": "Your service was excellent and very helpful."
 }
+```
 
 Expected category:
-Feedback
 
-Other
+```text
+Feedback
+```
+
+### Other
+
+Request:
+
+```json
 {
   "text": "I travelled to Delhi yesterday."
 }
+```
 
 Expected category:
-Other
 
-8. Gemini AI Integration
+```text
+Other
+```
+
+---
+
+## 9. Gemini AI Integration
+
 The application uses Google's Gemini API to classify the input text.
+
 The service sends a prompt instructing Gemini to:
+
 1. Classify the text into exactly one of the supported categories.
-2. Return a confidence score between 0 and 1.
+2. Return a confidence score between `0` and `1`.
 3. Return the result in JSON format.
 4. Return no additional text or Markdown.
-Example AI response:
+
+### Expected AI Response
+
+```json
 {
   "category": "Complaint",
   "confidence": 0.95
 }
+```
 
-The application then parses and validates the AI response before returning it to the client.
-9. Environment Configuration
+The application parses and validates the AI response before returning it to the client.
+
+### AI Classification Process
+
+```text
+Input Text
+    |
+    v
+Build Classification Prompt
+    |
+    v
+Send Request to Gemini
+    |
+    v
+Receive JSON Response
+    |
+    v
+Parse AI Response
+    |
+    v
+Validate Category + Confidence
+    |
+    v
+Return ClassificationResponse
+```
+
+---
+
+## 10. Environment Configuration
+
 The Gemini API key is not hardcoded in the source code.
+
 The application reads the API key from an environment variable.
-application.properties
+
+### application.properties
+
+```properties
 spring.application.name=text-classification-api
 server.port=8080
 
 gemini.api-key=${GEMINI_API_KEY}
 gemini.model=gemini-2.5-flash
+```
 
 Set the environment variable:
+
+```text
 GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+```
 
-Never commit your actual Gemini API key to GitHub.
+> **Important:** Never commit your actual Gemini API key to GitHub.
 
-10. How to Run the Application
-Prerequisites
+---
+
+## 11. How to Run the Application
+
+### Prerequisites
+
 Make sure the following are installed:
+
 - Java 17
 - Maven
-- A Gemini API key
-Step 1: Clone the repository
+- Gemini API key
+
+### Step 1: Clone the Repository
+
+```bash
 git clone <YOUR_GITHUB_REPOSITORY_URL>
+```
 
-Step 2: Navigate to the project
+### Step 2: Navigate to the Project
+
+```bash
 cd text-classification-api
+```
 
-Step 3: Configure the Gemini API key
+### Step 3: Configure the Gemini API Key
+
 Set the environment variable:
-GEMINI_API_KEY=YOUR_GEMINI_API_KEY
 
-Step 4: Run the application
+```text
+GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+```
+
+### Step 4: Run the Application
+
 Using Maven:
+
+```bash
 mvn spring-boot:run
+```
 
 The application will start on:
+
+```text
 http://localhost:8080
+```
 
-11. Testing with Postman
-Create a POST request:
+---
+
+## 12. Testing with Postman
+
+Create a `POST` request:
+
+```text
 http://localhost:8080/api/classify
+```
 
-Set the header:
+### Header
+
+```text
 Content-Type: application/json
+```
 
-Use the following request body:
+### Request Body
+
+Select:
+
+```text
+Body → raw → JSON
+```
+
+Then provide:
+
+```json
 {
   "text": "I am very unhappy with the service."
 }
+```
 
-Example response:
+### Example Response
+
+```json
 {
   "category": "Complaint",
   "confidence": 0.95
 }
+```
 
-12. Response-Time Logging
-The application logs the time taken by the Gemini API request.
-Example log:
-Gemini API response time: 842 ms
+---
 
-This helps in monitoring the AI service response time during development and testing.
-13. Error Handling
-The application provides centralized exception handling using @RestControllerAdvice.
-Invalid Request
-Example:
+## 13. Error Handling
+
+The application uses centralized exception handling with `@RestControllerAdvice`.
+
+### Invalid Request
+
+For example:
+
+```json
 {
   "text": ""
 }
+```
 
-Returns a 400 Bad Request.
-AI Service Failure
-If the Gemini service fails or returns an invalid response, the application returns a 502 Bad Gateway.
-Unexpected Application Error
-Unexpected errors are handled and returned as:
+The API returns:
+
+```text
+400 Bad Request
+```
+
+Example response:
+
+```json
+{
+  "error": "Invalid request",
+  "message": "Text must not be blank"
+}
+```
+
+### AI Service Failure
+
+If the Gemini service fails or returns an invalid response, the API returns:
+
+```text
+502 Bad Gateway
+```
+
+Example response:
+
+```json
+{
+  "error": "AI classification failed",
+  "message": "Unable to classify the text using the AI service"
+}
+```
+
+### Unexpected Application Error
+
+Unexpected errors are handled centrally and return:
+
+```text
 500 Internal Server Error
+```
 
-14. Security
+Example response:
+
+```json
+{
+  "error": "Internal server error",
+  "message": "An unexpected error occurred"
+}
+```
+
+---
+
+## 14. Response-Time Logging
+
+The application logs the time taken for the Gemini API request.
+
+Example log:
+
+```text
+Gemini API response time: 842 ms
+```
+
+This helps monitor the AI service response time during development and testing.
+
+---
+
+## 15. Security
+
 - The Gemini API key is stored in an environment variable.
 - The API key is not hardcoded in the source code.
 - The API key should never be committed to GitHub.
-- .gitignore is used to prevent local environment/configuration files from being committed.
-15. Future Improvements
+- Sensitive local configuration files should be excluded using `.gitignore`.
+
+---
+
+## 16. Future Improvements
+
 Possible improvements include:
-- Add unit and integration tests.
-- Add API documentation using Swagger/OpenAPI.
+
+- Add unit tests.
+- Add integration tests.
+- Add Swagger/OpenAPI documentation.
 - Add Docker support.
-- Add request/response logging with correlation IDs.
 - Add retry and timeout handling for Gemini API failures.
 - Add monitoring and metrics.
 - Add authentication and authorization.
 - Add configurable classification categories.
+- Add a Postman collection.
+
+---
+
+## 17. Assignment Requirements Covered
+
+This project covers the main requirements of the assignment:
+
+- REST API with a single POST endpoint.
+- Accepts text input.
+- Sends the text to an AI model.
+- Classifies the text into:
+  - Complaint
+  - Query
+  - Feedback
+  - Other
+- Returns category and confidence.
+- Uses a controller/service structure.
+- Includes request validation.
+- Includes basic error handling.
+- Uses environment variables for the AI API key.
+- Includes README documentation.
+- Can be tested using Postman.
+
+---
+
+## 18. Author
+
+Developed as part of a backend development assignment.
