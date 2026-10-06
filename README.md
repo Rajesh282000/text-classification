@@ -37,3 +37,123 @@ Category + Confidence
        |
        v
 Client
+
+
+2. Technology Stack
+- Java 17
+- Spring Boot 3.5.6
+- Maven
+- Spring Web
+- Spring Validation
+- Jackson
+- Google Gemini API
+- Postman
+3. Project Structure
+src/main/java/com/example/textclassification
+│
+├── controller
+│   └── ClassificationController.java
+│
+├── dto
+│   ├── ClassificationRequest.java
+│   └── ClassificationResponse.java
+│
+├── exception
+│   └── GlobalExceptionHandler.java
+│
+├── service
+│   └── ClassificationService.java
+│
+└── TextClassificationApplication.java
+
+Responsibilities
+Controller
+ClassificationController
+- Exposes the REST endpoint.
+- Accepts the incoming request.
+- Delegates classification to the service.
+Service
+ClassificationService
+- Builds the AI classification prompt.
+- Calls the Gemini API.
+- Extracts the AI response.
+- Validates category and confidence.
+- Returns the classification result.
+- Logs Gemini API response time.
+DTOs
+ClassificationRequest
+Receives the input text.
+ClassificationResponse
+Returns:
+- Category
+- Confidence
+Exception Handler
+GlobalExceptionHandler
+Handles:
+- Invalid request
+- AI service errors
+- Unexpected application errors
+4. API Endpoint
+Classify Text
+POST /api/classify
+
+Full URL when running locally:
+http://localhost:8080/api/classify
+
+5. Request
+Headers
+Content-Type: application/json
+
+Request Body
+{
+  "text": "I want a refund because your service was terrible."
+}
+
+6. Response
+Example:
+{
+  "category": "Complaint",
+  "confidence": 0.95
+}
+
+Possible Categories
+Category	Description
+Complaint	User expresses dissatisfaction or reports a problem
+Query	User is asking for information
+Feedback	User provides positive or general feedback
+Other	Text that does not fit the above categories
+
+
+The confidence value is between 0 and 1.
+7. Example Requests
+Complaint
+{
+  "text": "I want my money back. The service was terrible."
+}
+
+Expected category:
+Complaint
+
+Query
+{
+  "text": "What are your customer support hours?"
+}
+
+Expected category:
+Query
+
+Feedback
+{
+  "text": "Your service was excellent and very helpful."
+}
+
+Expected category:
+Feedback
+
+Other
+{
+  "text": "I travelled to Delhi yesterday."
+}
+
+Expected category:
+Other
